@@ -1,0 +1,70 @@
+"""
+Memory manager.
+"""
+
+from app.memory.long_term import LongTermMemory
+from app.memory.session import SessionMemory
+from app.memory.extractor import MemoryExtractor
+
+
+class MemoryManager:
+
+    def __init__(self):
+
+        self.session = SessionMemory()
+
+        self.long_term = LongTermMemory()
+
+        self.extractor = MemoryExtractor()
+    
+    def learn(self, text: str):
+
+        facts = self.extractor.extract(text)
+
+        for key, value in facts.items():
+
+            self.long_term.remember(
+                key,
+                value,
+            )
+
+        return facts
+
+    def add_user(self, message):
+
+        self.session.add(
+            "user",
+            message,
+        )
+
+    def add_assistant(self, message):
+
+        self.session.add(
+            "assistant",
+            message,
+        )
+
+    def conversation(self):
+
+        return self.session.messages()
+
+    def remember(self, key, value):
+
+        self.long_term.remember(
+            key,
+            value,
+        )
+
+    def recall(self, key):
+
+        return self.long_term.recall(
+            key,
+        )
+
+    def clear(self):
+
+        self.session.clear()
+    
+    def facts(self):
+
+        return self.long_term.all()

@@ -2,46 +2,73 @@
 Brain module.
 """
 
-from app.brain.history import ConversationHistory
-from app.brain.providers.ollama_provider import OllamaProvider
-from app.tools.manager import ToolManager
 from app.brain.intent.analyzer import IntentAnalyzer
 from app.brain.intent.intents import Intent
+from app.brain.providers.ollama_provider import OllamaProvider
+from app.memory.manager import MemoryManager
+from app.tools.manager import ToolManager
+from app.brain.prompt.builder import PromptBuilder
+from app.brain.reasoning import ReasoningEngine
 
 
 class Brain:
 
     def __init__(self):
 
-        self.history = ConversationHistory()
-
         self.provider = OllamaProvider()
-        
-        self.tool_manager = ToolManager()
 
         self.intent = IntentAnalyzer()
 
-    def think(self, user_input: str):
+        self.tool_manager = ToolManager()
 
-        self.history.add_user(user_input)
+        self.memory = MemoryManager()
+
+        self.reasoning = ReasoningEngine()
+
+        self.prompt_builder = PromptBuilder()
+
+    def think(self, user_input):
+
+        self.memory.add_user(user_input)
+
+        facts = self.memory.learn(user_input)
+
+        if facts:
+
+            learned = ", ".join(
+
+                f"{k} = {v}"
+
+                for k, v in facts.items()
+
+            )
+
+            response = (
+
+                f"I'll remember that ({learned})."
+
+            )
+
+            self.memory.add_assistant(response)
+
+            return response
 
         intent = self.intent.analyze(user_input)
 
-        if intent.name.startswith("OPEN"):
+        response = self.reasoning.resolve(
 
-            application = user_input.split()[-1]
+            user_input,
 
-            response = self.tool_manager.execute(
-                intent,
-                application,
-            )
+            intent,
 
-        else:
+            self.provider,
 
-            response = self.provider.chat(
-                self.history.get_messages()
-            )
+            self.memory,
 
-        self.history.add_assistant(response)
+            self.tool_manager,
+
+        )
+
+        self.memory.add_assistant(response)
 
         return response
