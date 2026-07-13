@@ -1,1 +1,1 @@
-from .mock import MockProvider
+from .ollama_provider import OllamaProvider
