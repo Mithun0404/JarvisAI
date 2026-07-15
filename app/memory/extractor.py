@@ -1,58 +1,47 @@
 """
-Automatic memory extraction.
+AI memory extractor.
 """
 
-import re
+import json
+
+from app.brain.providers.ollama_provider import OllamaProvider
+
+from app.memory.prompts import MEMORY_EXTRACTION_PROMPT
+
+from app.memory.schemas import MemoryExtraction
 
 
 class MemoryExtractor:
-    """
-    Extracts important user facts from natural language.
-    """
 
-    def extract(self, text: str) -> dict:
+    def __init__(self):
 
-        memory = {}
+        self.provider = OllamaProvider()
 
-        patterns = [
+    def extract(
+        self,
+        text: str,
+    ) -> MemoryExtraction:
 
-            (
-                r"my name is (.+)",
-                "name",
-            ),
+        response = self.provider.generate(
 
-            (
-                r"i am working on (.+)",
-                "current_project",
-            ),
+            MEMORY_EXTRACTION_PROMPT,
 
-            (
-                r"i'm working on (.+)",
-                "current_project",
-            ),
+            text,
 
-            (
-                r"my favorite language is (.+)",
-                "favorite_language",
-            ),
+        )
 
-            (
-                r"i like (.+)",
-                "likes",
-            ),
+        try:
 
-        ]
+            data = json.loads(response)
 
-        text = text.strip().lower()
+        except Exception:
 
-        for pattern, key in patterns:
+            return MemoryExtraction()
 
-            match = re.search(pattern, text)
+        return MemoryExtraction(
 
-            if match:
+            store=data.get("store", False),
 
-                value = match.group(1).strip()
+            facts=data.get("facts", {}),
 
-                memory[key] = value.title()
-
-        return memory
+        )

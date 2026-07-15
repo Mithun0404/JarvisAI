@@ -27,46 +27,18 @@ class Brain:
 
         self.prompt_builder = PromptBuilder()
 
-    def think(self, user_input):
+    def think(self, user_input: str):
 
         self.memory.add_user(user_input)
-
-        facts = self.memory.learn(user_input)
-
-        if facts:
-
-            learned = ", ".join(
-
-                f"{k} = {v}"
-
-                for k, v in facts.items()
-
-            )
-
-            response = (
-
-                f"I'll remember that ({learned})."
-
-            )
-
-            self.memory.add_assistant(response)
-
-            return response
 
         intent = self.intent.analyze(user_input)
 
         response = self.reasoning.resolve(
-
             user_input,
-
             intent,
-
             self.provider,
-
             self.memory,
-
             self.tool_manager,
-
         )
 
         self.memory.add_assistant(response)

@@ -17,18 +17,19 @@ class MemoryManager:
 
         self.extractor = MemoryExtractor()
     
-    def learn(self, text: str):
+    def learn(self,text: str,):
 
-        facts = self.extractor.extract(text)
+        extraction = self.extractor.extract(text)
 
-        for key, value in facts.items():
+        if not extraction.store:
 
-            self.long_term.remember(
-                key,
-                value,
-            )
+            return {}
 
-        return facts
+        for key, value in extraction.facts.items():
+
+            self.long_term.remember(key,value,)
+            
+        return extraction.facts
 
     def add_user(self, message):
 
