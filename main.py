@@ -1,4 +1,4 @@
-from core.startup import startup
+from app.core.startup import startup
 from app.cli.shell import CommandShell
 
 

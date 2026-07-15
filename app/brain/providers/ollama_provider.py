@@ -12,7 +12,7 @@ class OllamaProvider(AIProvider):
     Local Ollama provider.
     """
 
-    def __init__(self, model: str = "llama3.2:1b"):
+    def __init__(self, model: str = "qwen2.5:3b"):
 
         self.model = model
 

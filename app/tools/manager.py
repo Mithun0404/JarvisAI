@@ -3,6 +3,7 @@ Tool manager.
 """
 
 from app.tools.application_tool import ApplicationTool
+from app.tools.browser_tool import BrowserTool
 
 
 class ToolManager:
@@ -12,6 +13,8 @@ class ToolManager:
         self.tools = {}
 
         self.register(ApplicationTool())
+
+        self.register(BrowserTool())
 
     def register(self, tool):
 

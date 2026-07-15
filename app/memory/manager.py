@@ -5,17 +5,21 @@ Memory manager.
 from app.memory.long_term import LongTermMemory
 from app.memory.session import SessionMemory
 from app.memory.extractor import MemoryExtractor
+from app.tools.application_tool import ApplicationTool
+from app.tools.browser_tool import BrowserTool
 
 
 class MemoryManager:
 
-    def __init__(self):
+    def __init__(self,provider):
 
         self.session = SessionMemory()
 
         self.long_term = LongTermMemory()
 
-        self.extractor = MemoryExtractor()
+    
+        self.extractor = MemoryExtractor(provider)
+        
     
     def learn(self,text: str,):
 
@@ -28,7 +32,7 @@ class MemoryManager:
         for key, value in extraction.facts.items():
 
             self.long_term.remember(key,value,)
-            
+
         return extraction.facts
 
     def add_user(self, message):

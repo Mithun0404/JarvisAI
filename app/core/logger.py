@@ -8,7 +8,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from core.constants import LOG_DIR, LOG_FILE
+from app.core.constants import LOG_DIR, LOG_FILE
 
 
 def setup_logger():

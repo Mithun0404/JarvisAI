@@ -2,25 +2,43 @@
 Tool reasoning.
 """
 
-from app.brain.intent.intents import Intent
-
 
 class ToolReasoner:
 
     def resolve(
         self,
-        user_input,
-        intent,
+        classification,
         tool_manager,
     ):
 
-        if intent != Intent.OPEN_APPLICATION:
+        intent = classification.intent
 
-            return None
+        if intent == "OPEN_APPLICATION":
 
-        application = user_input.split()[-1]
+            application = classification.parameters.get(
+                "application"
+            )
 
-        return tool_manager.execute(
-            intent,
-            application,
-        )
+            if not application:
+                return "Application not specified."
+
+            return tool_manager.execute(
+                intent,
+                application,
+            )
+
+        elif intent == "SEARCH_WEB":
+
+            query = classification.parameters.get(
+                "query"
+            )
+
+            if not query:
+                return "Search query missing."
+
+            return tool_manager.execute(
+                intent,
+                query,
+            )
+
+        return None

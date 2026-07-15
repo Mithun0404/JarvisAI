@@ -13,10 +13,10 @@ from app.memory.schemas import MemoryExtraction
 
 class MemoryExtractor:
 
-    def __init__(self):
+    def __init__(self, provider):
 
-        self.provider = OllamaProvider()
-
+        self.provider = provider
+        
     def extract(
         self,
         text: str,

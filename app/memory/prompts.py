@@ -1,61 +1,32 @@
 MEMORY_EXTRACTION_PROMPT = """
-You are a JSON extraction engine.
+You extract ONLY long-term user facts.
 
-Your job is to identify long-term user information.
+Store ONLY if the user explicitly tells something about themselves.
 
-Only remember facts that remain true for weeks or months.
+Examples to STORE:
 
-Examples:
+- My name is Mithun.
+- I live in Chennai.
+- I like Java.
+- I am a student.
+- I work at Microsoft.
 
-"My name is Mithun."
+Examples NOT to store:
 
-↓
+- Open Chrome
+- Open Notepad
+- Hello
+- Thanks
+- What's my name?
+- Launch VS Code
+- Search Google
 
-{
-    "store": true,
-    "facts": {
-        "name":"Mithun"
-    }
-}
+Return ONLY JSON.
 
-"I love Java."
-
-↓
-
-{
-    "store": true,
-    "facts": {
-        "favorite_language":"Java"
-    }
-}
-
-"My project is Mango Monitoring."
-
-↓
-
-{
-    "store": true,
-    "facts": {
-        "current_project":"Mango Monitoring"
-    }
-}
-
-"I ate pizza today."
-
-↓
+If nothing should be stored:
 
 {
     "store": false,
     "facts": {}
 }
-
-IMPORTANT
-
-Return ONLY JSON.
-
-No markdown.
-
-No explanation.
-
-No extra text.
 """

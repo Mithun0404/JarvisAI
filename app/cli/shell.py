@@ -6,8 +6,8 @@ import os
 
 from app.cli.router import CommandRouter
 from app.brain.brain import Brain
-from core.constants import APP_NAME, VERSION
-from core.logger import log
+from app.core.constants import APP_NAME, VERSION
+from app.core.logger import log
 
 
 class CommandShell:

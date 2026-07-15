@@ -2,13 +2,11 @@
 Brain module.
 """
 
-from app.brain.intent.analyzer import IntentAnalyzer
-from app.brain.intent.intents import Intent
+from app.brain.classifier import IntentClassifier
 from app.brain.providers.ollama_provider import OllamaProvider
+from app.brain.reasoning import ReasoningEngine
 from app.memory.manager import MemoryManager
 from app.tools.manager import ToolManager
-from app.brain.prompt.builder import PromptBuilder
-from app.brain.reasoning import ReasoningEngine
 
 
 class Brain:
@@ -17,28 +15,32 @@ class Brain:
 
         self.provider = OllamaProvider()
 
-        self.intent = IntentAnalyzer()
+        self.memory = MemoryManager(
+            self.provider
+        )
 
         self.tool_manager = ToolManager()
 
-        self.memory = MemoryManager()
-
         self.reasoning = ReasoningEngine()
 
-        self.prompt_builder = PromptBuilder()
+        self.classifier = IntentClassifier(
+            self.provider
+        )
 
     def think(self, user_input: str):
 
         self.memory.add_user(user_input)
 
-        intent = self.intent.analyze(user_input)
+        classification = self.classifier.classify(
+            user_input
+        )
 
         response = self.reasoning.resolve(
-            user_input,
-            intent,
-            self.provider,
-            self.memory,
-            self.tool_manager,
+            user_input=user_input,
+            classification=classification,
+            provider=self.provider,
+            memory=self.memory,
+            tool_manager=self.tool_manager,
         )
 
         self.memory.add_assistant(response)

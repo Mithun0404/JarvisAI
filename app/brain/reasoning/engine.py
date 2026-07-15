@@ -2,9 +2,9 @@
 Reasoning Engine.
 """
 
+from app.brain.reasoning.chat import ChatReasoner
 from app.brain.reasoning.memory import MemoryReasoner
 from app.brain.reasoning.tool import ToolReasoner
-from app.brain.reasoning.chat import ChatReasoner
 
 
 class ReasoningEngine:
@@ -18,15 +18,15 @@ class ReasoningEngine:
     def resolve(
         self,
         user_input,
-        intent,
+        classification,
         provider,
         memory,
         tool_manager,
     ):
 
-        # --------------------------------------------------
+        # ----------------------------
         # 1. Memory Questions
-        # --------------------------------------------------
+        # ----------------------------
 
         response = self.memory_reasoner.resolve(
             user_input,
@@ -36,22 +36,20 @@ class ReasoningEngine:
         if response is not None:
             return response
 
-        # --------------------------------------------------
+        # ----------------------------
         # 2. Tool Requests
-        # --------------------------------------------------
-
+        # ----------------------------
         response = self.tool_reasoner.resolve(
-            user_input,
-            intent,
+            classification,
             tool_manager,
         )
 
         if response is not None:
             return response
 
-        # --------------------------------------------------
+        # ----------------------------
         # 3. Learn New Information
-        # --------------------------------------------------
+        # ----------------------------
 
         facts = memory.learn(user_input)
 
@@ -62,13 +60,11 @@ class ReasoningEngine:
                 for k, v in facts.items()
             )
 
-            return (
-                f"I'll remember that ({learned})."
-            )
+            return f"I'll remember that ({learned})."
 
-        # --------------------------------------------------
-        # 4. Normal AI Conversation
-        # --------------------------------------------------
+        # ----------------------------
+        # 4. Normal Chat
+        # ----------------------------
 
         return self.chat_reasoner.resolve(
             provider,
