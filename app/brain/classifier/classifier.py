@@ -3,7 +3,6 @@ AI Intent Classifier.
 """
 
 import json
-from urllib import response
 
 from app.brain.providers.ollama_provider import OllamaProvider
 

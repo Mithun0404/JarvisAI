@@ -1,5 +1,5 @@
 """
-Browser search tool.
+Browser automation tool.
 """
 
 import webbrowser
@@ -16,12 +16,25 @@ class BrowserTool(BaseTool):
 
     @property
     def intent(self):
-        return "SEARCH_WEB"
+        return "WEB_AUTOMATION"
 
-    def execute(self, query):
+    def execute(self, data):
 
-        url = f"https://www.google.com/search?q={quote(query)}"
+        print("BrowserTool.execute() called")
+        print("Received:", data)
 
-        webbrowser.open(url)
+        if not isinstance(data, dict):
+            return f"Expected dict, got {type(data)}"
 
-        return f'Searching Google for "{query}"...'
+        action = str(data.get("action", "")).upper()
+        query = data.get("query", "")
+
+        if action == "SEARCH":
+
+            url = f"https://www.google.com/search?q={quote(query)}"
+
+            webbrowser.open(url)
+
+            return f'Searching Google for "{query}"...'
+
+        return f"Unsupported web action: {action}"

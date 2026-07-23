@@ -21,6 +21,9 @@ class ApplicationTool(BaseTool):
 
     def execute(self, application):
 
+        if isinstance(application, dict):
+                application = application.get("application", "")
+
         application = application.lower()
 
         apps = {

@@ -6,6 +6,7 @@ import os
 
 from app.cli.router import CommandRouter
 from app.brain.brain import Brain
+from app.voice import VoiceController
 from app.core.constants import APP_NAME, VERSION
 from app.core.logger import log
 
@@ -19,12 +20,20 @@ class CommandShell:
 
         self.router = CommandRouter()
         self.brain = Brain()
+        self.voice = VoiceController(brain=self.brain)
 
         self.router.register("help", self.help)
         self.router.register("version", self.version)
         self.router.register("status", self.status)
         self.router.register("clear", self.clear)
         self.router.register("hello", self.hello)
+        self.router.register("voice", self.voice_mode)
+        self.router.register("listen", self.listen_command)
+        self.router.register("speak", self.speak_command)
+        self.router.register("wake", self.wake_command)
+        self.router.register("wakeword", self.wake_command)
+
+
 
     def start(self):
 
@@ -81,3 +90,20 @@ class CommandShell:
     def hello(self):
 
         print("Hello Mithun!")
+
+    def voice_mode(self):
+        """Starts continuous interactive voice loop."""
+        self.voice.start_voice_loop()
+
+    def listen_command(self):
+        """Captures a single voice command from microphone."""
+        self.voice.listen_and_process()
+
+    def speak_command(self):
+        """Test voice output."""
+        self.voice.tts.speak("JARVIS voice system operational.")
+
+    def wake_command(self):
+        """Starts hands-free Wake Word activation mode ('Jarvis' or 'Hey Jarvis')."""
+        self.voice.start_wake_word_mode()
+

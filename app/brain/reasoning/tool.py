@@ -13,11 +13,12 @@ class ToolReasoner:
 
         intent = classification.intent
 
+        # -----------------------------
+        # Open Application
+        # -----------------------------
         if intent == "OPEN_APPLICATION":
 
-            application = classification.parameters.get(
-                "application"
-            )
+            application = classification.parameters.get("application")
 
             if not application:
                 return "Application not specified."
@@ -27,18 +28,39 @@ class ToolReasoner:
                 application,
             )
 
-        elif intent == "SEARCH_WEB":
+        # -----------------------------
+        # Close Application
+        # -----------------------------
+        elif intent == "CLOSE_WINDOW":
 
-            query = classification.parameters.get(
-                "query"
-            )
+            application = classification.parameters.get("application")
 
-            if not query:
-                return "Search query missing."
+            if not application:
+                return "Application not specified."
 
             return tool_manager.execute(
                 intent,
-                query,
+                application,
+            )
+
+        # -----------------------------
+        # Web Automation
+        # -----------------------------
+        elif intent == "WEB_AUTOMATION":
+
+            return tool_manager.execute(
+                intent,
+                classification.parameters,
+            )
+
+        # -----------------------------
+        # Desktop Automation
+        # -----------------------------
+        elif intent == "DESKTOP_AUTOMATION":
+
+            return tool_manager.execute(
+                intent,
+                classification.parameters,
             )
 
         return None

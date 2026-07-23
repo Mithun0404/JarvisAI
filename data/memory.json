@@ -1,3 +1,9 @@
 {
-    "name": "Mithun"
+    "name": "Mithun",
+    "pref_color": "blue",
+    "workflow_search_job": [
+        "open_chrome",
+        "type_url",
+        "drag_mouse"
+    ]
 }
