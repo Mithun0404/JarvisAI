@@ -25,3 +25,5 @@ uvicorn==0.50.0
 win32_setctime==1.2.0
 SpeechRecognition>=3.10.0
 PyAudio>=0.2.14
+edge-tts>=7.0.0
+pygame>=2.6.0

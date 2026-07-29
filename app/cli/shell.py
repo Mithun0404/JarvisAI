@@ -9,6 +9,7 @@ from app.brain.brain import Brain
 from app.voice import VoiceController
 from app.core.constants import APP_NAME, VERSION
 from app.core.logger import log
+from app.core.greetings import display_and_speak_greeting, display_and_speak_farewell
 
 
 class CommandShell:
@@ -33,11 +34,11 @@ class CommandShell:
         self.router.register("wake", self.wake_command)
         self.router.register("wakeword", self.wake_command)
 
-
-
     def start(self):
 
         log.success("Command shell started.")
+        # Stylish dynamic greeting spoken in female voice
+        display_and_speak_greeting(self.voice)
 
         while True:
 
@@ -50,6 +51,7 @@ class CommandShell:
 
                 if command == "exit":
                     log.info("Shutting down JARVIS...")
+                    display_and_speak_farewell(self.voice)
                     break
 
                 if command in self.router.list_commands():
@@ -61,9 +63,8 @@ class CommandShell:
             except KeyboardInterrupt:
 
                 print()
-
                 log.info("Shutdown requested.")
-
+                display_and_speak_farewell(self.voice)
                 break
 
     def help(self):
@@ -88,8 +89,7 @@ class CommandShell:
         os.system("cls" if os.name == "nt" else "clear")
 
     def hello(self):
-
-        print("Hello Mithun!")
+        display_and_speak_greeting(self.voice)
 
     def voice_mode(self):
         """Starts continuous interactive voice loop."""

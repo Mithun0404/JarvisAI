@@ -20,7 +20,7 @@ class SpeechToText:
     Handles audio recording and transcription from microphone input.
     """
 
-    def __init__(self, energy_threshold: int = 300, pause_threshold: float = 0.8) -> None:
+    def __init__(self, energy_threshold: int = 300, pause_threshold: float = 0.5) -> None:
         """
         Initialize Speech Recognition engine.
         """
@@ -48,8 +48,8 @@ class SpeechToText:
         try:
             with sr.Microphone() as source:
                 logger.info("Listening for voice input...")
-                # Calibrate for ambient noise quickly
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                # Calibrate for ambient noise quickly (0.2s for maximum speed)
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
                 audio = self.recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
 
             logger.info("Transcribing voice input...")
