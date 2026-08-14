@@ -29,7 +29,9 @@ You have access to:
 
 Observations format:
 The current state of your screen will be described to you. Pay close attention to what windows are active and focused.
-Specifically, check the "detected_apps" list. If an application (e.g., 'chrome') is NOT present in "detected_apps", it is NOT running. Do NOT confuse file names or window titles of other programs (like VS Code showing code files titled 'test_browser.py' or 'chrome_test.py') with the target application itself. If the app is not in the detected_apps list, you can assume it has been successfully closed.
+Specifically, check the "detected_apps" list. If an application (e.g., 'chrome') IS present in "detected_apps", it is already running -- do not call open_app for it again, and prefer to finish immediately if opening it was the whole goal. If an application is NOT present in "detected_apps", it is NOT running. Do NOT confuse file names or window titles of other programs (like VS Code showing code files titled 'test_browser.py' or 'chrome_test.py') with the target application itself. If the app is not in the detected_apps list, you can assume it has been successfully closed.
+
+Every window listed in the observation (in "detected_apps" or "Visible Windows") includes its real "hwnd" value. Any action that takes an "hwnd" parameter MUST use that exact integer copied from the observation -- never guess, invent, or use a PID in place of an hwnd. If you don't have a real hwnd for the window you want to act on, use "open_app"/"close_app" or the browser actions instead, which don't require one.
 
 You MUST output your decision in EXACTLY this JSON structure. Do not output markdown code blocks (e.g. ```json), do not explain, just return raw JSON:
 {
@@ -59,6 +61,7 @@ Supported Actions:
 - clipboard_get: {}
 - browser_open_url: {"url": "<url>"}
 - browser_search: {"query": "<query>"}
+- play_youtube: {"query": "<song, artist, or video description>"}
 - browser_scroll: {"direction": "down" | "up", "amount": <int>}
 - browser_new_tab: {}
 - browser_close_tab: {}
@@ -69,6 +72,7 @@ Supported Actions:
 Examples:
 - To close chrome, choose action `close_app` with parameters `{"app_key": "chrome"}`.
 - To type something, run `keyboard_type` with parameters `{"text": "my text"}`.
+- To play a song or video, choose action `play_youtube` with parameters `{"query": "<song name>"}` in a SINGLE step -- it opens and starts playback directly. Do NOT use `browser_open_url` + `browser_search` for this; that only opens a search results page and nothing actually plays.
 - If the current screen state indicates you have achieved the goal, choose action `finish` with parameters `{"response": "Successfully closed Chrome."}`.
 """
 
@@ -118,7 +122,7 @@ class AgentLoop:
             messages.append({"role": "user", "content": f"Current Observation:\n\n{obs_text}\n\nWhat is the next action?"})
 
             # 2. Reason & Decide
-            response_raw = self.provider.chat(messages)
+            response_raw = self.provider.chat(messages, json_mode=True)
             logger.debug(f"LLM Raw Decision Response: {response_raw}")
 
             # Bulletproof JSON extraction from the LLM outputs
@@ -156,6 +160,13 @@ class AgentLoop:
             # 3. Execute
             exec_result = self._execute_action(action, params)
             logger.debug(f"Execution Result: {exec_result}")
+
+            # play_youtube is a one-shot action with no reliable way to confirm
+            # playback via window observation -- finish immediately after it
+            # runs instead of letting the loop retry and open more tabs.
+            if action in ("play_youtube", "browser_play_youtube"):
+                logger.success(f"Agent Loop completed successfully: {exec_result}")
+                return exec_result
 
             # Record result
             messages.append({"role": "user", "content": f"Execution Result: {exec_result}"})
@@ -237,6 +248,8 @@ class AgentLoop:
                 return self.browser.open_url(params.get("url", ""))
             elif action == "browser_search":
                 return self.browser.search(params.get("query", ""))
+            elif action in ("browser_play_youtube", "play_youtube"):
+                return self.browser.play_youtube(params.get("query", ""))
             elif action == "browser_scroll":
                 return self.browser.scroll(params.get("direction", "down"), int(params.get("amount", 2)))
             elif action == "browser_new_tab":

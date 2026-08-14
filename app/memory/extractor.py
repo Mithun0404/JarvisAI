@@ -28,6 +28,8 @@ class MemoryExtractor:
 
             text,
 
+            json_mode=True,
+
         )
 
         try:

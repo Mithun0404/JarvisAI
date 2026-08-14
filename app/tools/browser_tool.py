@@ -30,11 +30,13 @@ class BrowserTool(BaseTool):
         query = data.get("query", "")
 
         if action == "SEARCH":
-
             url = f"https://www.google.com/search?q={quote(query)}"
-
             webbrowser.open(url)
-
             return f'Searching Google for "{query}"...'
+
+        elif action in ("PLAY_YOUTUBE", "YOUTUBE", "PLAY"):
+            url = f"https://www.youtube.com/results?search_query={quote(query)}"
+            webbrowser.open(url)
+            return f'Playing "{query}" on YouTube...'
 
         return f"Unsupported web action: {action}"

@@ -79,10 +79,19 @@ class ScreenObserver:
 
         summary = f"Desktop State Observation:\n"
         summary += f"- Focused Window: {focused_app_desc}\n"
+
+        summary += "- detected_apps (registered applications currently open):\n"
+        if detected_apps:
+            for app in detected_apps:
+                titles = ", ".join(f"'{w['title']}' (hwnd: {w['hwnd']})" for w in app["windows"])
+                summary += f"  * app_key='{app['app_key']}' ({app['display_name']}) - windows: {titles}\n"
+        else:
+            summary += "  * (none of the registered applications are currently open)\n"
+
         summary += f"- Visible Windows:\n"
         for win in visible_windows[:7]:  # limit output length for LLM token economy
             focus_star = " [FOCUSED]" if win.get("is_focused") else ""
-            summary += f"  * '{win['title']}' (PID: {win['pid']}){focus_star}\n"
+            summary += f"  * '{win['title']}' (hwnd: {win['hwnd']}, PID: {win['pid']}){focus_star}\n"
         if len(visible_windows) > 7:
             summary += f"  * ... and {len(visible_windows) - 7} other windows.\n"
 

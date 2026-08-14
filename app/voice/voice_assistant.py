@@ -43,7 +43,7 @@ class VoiceController:
             self.tts.speak(err_msg)
             return None
 
-        self.tts.speak("Listening...", async_speech=False)
+        self.tts.speak("Listening...", async_speech=True)
         user_speech = self.stt.listen(timeout=timeout)
 
         if not user_speech:
@@ -51,7 +51,6 @@ class VoiceController:
             return None
 
         print(f"\n[Voice Input]: {user_speech}")
-        self.tts.speak(f"Processing command: {user_speech}")
 
         try:
             response = self.brain.think(user_speech)
@@ -70,7 +69,7 @@ class VoiceController:
         """
         Runs an interactive voice command loop. Continues until user says 'exit', 'quit', or 'stop'.
         """
-        self.tts.speak("Voice mode activated. Speak your command.")
+        self.tts.speak("Voice mode activated. Speak your command.", async_speech=True)
         logger.info("Started continuous voice command mode.")
 
         exit_keywords = {"exit", "quit", "stop", "cancel", "bye", "shutdown"}
@@ -90,8 +89,6 @@ class VoiceController:
                     self.tts.speak("Exiting voice mode. Returning to standard shell.")
                     print("\n[Exiting Voice Mode]")
                     break
-
-                self.tts.speak(f"Got it: {command}")
                 
                 if self.brain:
                     response = self.brain.think(command)
@@ -124,9 +121,9 @@ class VoiceController:
                     
                     if inline_cmd:
                         command = inline_cmd
-                        self.tts.speak(f"Yes, Mithun? Processing {command}")
+                        self.tts.speak("Yes, Mithun?", async_speech=True)
                     else:
-                        self.tts.speak("Yes, Mithun? I am listening.")
+                        self.tts.speak("Yes, Mithun?", async_speech=True)
                         print("[Listening for command...]")
                         command = self.stt.listen(timeout=6.0, phrase_time_limit=10.0)
 

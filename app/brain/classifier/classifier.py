@@ -31,6 +31,8 @@ class IntentClassifier:
 
             text,
 
+            json_mode=True,
+
         )
        
         try:

@@ -2,6 +2,7 @@
 Memory manager.
 """
 
+import string
 from typing import Optional
 
 from app.memory.long_term import LongTermMemory
@@ -9,6 +10,8 @@ from app.memory.session import SessionMemory
 from app.memory.extractor import MemoryExtractor
 from app.tools.application_tool import ApplicationTool
 from app.tools.browser_tool import BrowserTool
+
+CORRECTIONS_KEY = "__corrections__"
 
 
 class MemoryManager:
@@ -94,4 +97,20 @@ class MemoryManager:
 
     def get_workflow(self, name: str) -> Optional[list[str]]:
         """Recall saved workflow recipe by name."""
-        return self.long_term.recall(f"workflow_{name.lower()}")
+        return self.long_term.recall(f"workflow_{name.lower()}")
+
+    @staticmethod
+    def _normalize(text: str) -> str:
+        cleaned = text.translate(str.maketrans("", "", string.punctuation))
+        return " ".join(cleaned.lower().split())
+
+    def save_correction(self, trigger: str, corrected_goal: str) -> None:
+        """Remember that `trigger` should actually be treated as `corrected_goal`."""
+        corrections = self.long_term.recall(CORRECTIONS_KEY) or {}
+        corrections[self._normalize(trigger)] = corrected_goal
+        self.long_term.remember(CORRECTIONS_KEY, corrections)
+
+    def get_correction(self, trigger: str) -> Optional[str]:
+        """Recall a previously learned correction for the given input, if any."""
+        corrections = self.long_term.recall(CORRECTIONS_KEY) or {}
+        return corrections.get(self._normalize(trigger))

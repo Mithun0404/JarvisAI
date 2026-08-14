@@ -9,7 +9,13 @@ import subprocess
 from app.tools.base import BaseTool
 
 
+from app.automation.app_manager import ApplicationManager
+
+
 class ApplicationTool(BaseTool):
+
+    def __init__(self):
+        self.app_manager = ApplicationManager()
 
     @property
     def name(self):
@@ -20,51 +26,8 @@ class ApplicationTool(BaseTool):
         return "OPEN_APPLICATION"
 
     def execute(self, application):
-
         if isinstance(application, dict):
-                application = application.get("application", "")
+            application = application.get("application", "")
 
-        application = application.lower()
-
-        apps = {
-            "notepad": ["notepad.exe"],
-            "calculator": ["calc.exe"],
-            "calc": ["calc.exe"],
-            "paint": ["mspaint.exe"],
-            "cmd": ["cmd.exe"],
-            "powershell": ["powershell.exe"],
-            "explorer": ["explorer.exe"],
-
-            "chrome": [
-                "chrome.exe",
-                r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-                r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-                os.path.expandvars(
-                    r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"
-                ),
-            ],
-
-            "vscode": [
-                "code.cmd",
-                os.path.expandvars(
-                    r"%LOCALAPPDATA%\Programs\Microsoft VS Code\Code.exe"
-                ),
-            ],
-        }
-
-        if application not in apps:
-            return f"{application} is not supported."
-
-        for executable in apps[application]:
-
-            path = shutil.which(executable)
-
-            if path:
-                subprocess.Popen([path])
-                return f"Opening {application}..."
-
-            if os.path.exists(executable):
-                subprocess.Popen([executable])
-                return f"Opening {application}..."
-
-        return f"Could not find {application} on this computer."
+        app_name = str(application).strip()
+        return self.app_manager.start_application(app_name)

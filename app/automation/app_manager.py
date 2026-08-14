@@ -24,31 +24,37 @@ class ApplicationManager:
 
     def start_application(self, key: str) -> str:
         """
-        Launches the application matching the given key.
+        Launches the application matching the given key with shell fallback.
         """
         app = registry.get(key)
-        if not app:
-            return f"Application '{key}' is not registered in the system registry."
+        display_name = app.display_name if app else key.title()
 
-        for path in app.executable_paths:
-            # Check system PATH environment variable
-            resolved_path = shutil.which(path)
-            if resolved_path:
-                try:
-                    subprocess.Popen([resolved_path])
-                    return f"Opening {app.display_name}..."
-                except Exception as e:
-                    return f"Failed to open {app.display_name} via {resolved_path}: {e}"
+        if app:
+            for path in app.executable_paths:
+                # Check system PATH environment variable
+                resolved_path = shutil.which(path)
+                if resolved_path:
+                    try:
+                        subprocess.Popen([resolved_path])
+                        return f"Gotcha! Opening {display_name} now."
+                    except Exception:
+                        pass
 
-            # Check absolute path
-            if os.path.exists(path):
-                try:
-                    subprocess.Popen([path])
-                    return f"Opening {app.display_name}..."
-                except Exception as e:
-                    return f"Failed to open {app.display_name} via {path}: {e}"
+                # Check absolute path
+                if os.path.exists(path):
+                    try:
+                        subprocess.Popen([path])
+                        return f"Gotcha! Opening {display_name} now."
+                    except Exception:
+                        pass
 
-        return f"Could not find {app.display_name} at any registered executable path."
+        # Universal Windows shell fallback: attempt launching via Windows 'start'
+        try:
+            cmd_key = app.executable_paths[0] if (app and app.executable_paths) else key
+            subprocess.Popen(f'start "" "{cmd_key}"', shell=True)
+            return f"Gotcha! Opening {display_name} now."
+        except Exception as e:
+            return f"Could not launch {display_name}: {e}"
 
     def close_application(self, key: str) -> str:
         """

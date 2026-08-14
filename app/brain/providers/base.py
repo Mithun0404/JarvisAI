@@ -11,7 +11,7 @@ class AIProvider(ABC):
     """
 
     @abstractmethod
-    def chat(self, messages: list[dict]) -> str:
+    def chat(self, messages: list[dict], json_mode: bool = False) -> str:
         """
         Generate a response.
         """

@@ -5,6 +5,7 @@ Ollama AI provider.
 from ollama import chat
 
 from app.brain.providers.base import AIProvider
+from app.core.config import settings
 
 
 class OllamaProvider(AIProvider):
@@ -12,18 +13,24 @@ class OllamaProvider(AIProvider):
     Local Ollama provider.
     """
 
-    def __init__(self, model: str = "qwen2.5:3b"):
+    def __init__(self, model: str | None = None):
 
-        self.model = model
+        self.model = model or settings.brain_model
 
     def chat(
         self,
         messages: list[dict],
+        json_mode: bool = False,
     ) -> str:
 
         response = chat(
             model=self.model,
             messages=messages,
+            format="json" if json_mode else None,
+            options={
+                "temperature": settings.brain_temperature,
+                "num_ctx": settings.brain_num_ctx,
+            },
         )
 
         return response.message.content
@@ -32,6 +39,7 @@ class OllamaProvider(AIProvider):
         self,
         system_prompt: str,
         user_prompt: str,
+        json_mode: bool = False,
     ) -> str:
 
         messages = [
@@ -48,4 +56,4 @@ class OllamaProvider(AIProvider):
 
         ]
 
-        return self.chat(messages)
+        return self.chat(messages, json_mode=json_mode)
